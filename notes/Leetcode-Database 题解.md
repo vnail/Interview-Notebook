@@ -13,6 +13,7 @@
 * [177. Nth Highest Salary](#177-nth-highest-salary)
 * [178. Rank Scores](#178-rank-scores)
 * [180. Consecutive Numbers](#180-consecutive-numbers)
+* [626. Exchange Seats](#626-exchange-seats)
 <!-- GFM-TOC -->
 
 
@@ -94,10 +95,10 @@ https://leetcode.com/problems/swap-salary/description/
 ```html
 | id | name | sex | salary |
 |----|------|-----|--------|
-| 1  | A    | m   | 2500   |
-| 2  | B    | f   | 1500   |
-| 3  | C    | m   | 5500   |
-| 4  | D    | f   | 500    |
+| 1  | A    | f   | 2500   |
+| 2  | B    | m   | 1500   |
+| 3  | C    | f   | 5500   |
+| 4  | D    | m   | 500    |
 ```
 
 ## SQL Schema
@@ -105,15 +106,14 @@ https://leetcode.com/problems/swap-salary/description/
 ```sql
 DROP TABLE
 IF
-    EXISTS World;
-CREATE TABLE World ( NAME VARCHAR ( 255 ), continent VARCHAR ( 255 ), area INT, population INT, gdp INT );
-INSERT INTO World ( NAME, continent, area, population, gdp )
+    EXISTS salary;
+CREATE TABLE salary ( id INT, NAME VARCHAR ( 100 ), sex CHAR ( 1 ), salary INT );
+INSERT INTO salary ( id, NAME, sex, salary )
 VALUES
-    ( 'Afghanistan', 'Asia', '652230', '25500100', '203430000' ),
-    ( 'Albania', 'Europe', '28748', '2831741', '129600000' ),
-    ( 'Algeria', 'Africa', '2381741', '37100000', '1886810000' ),
-    ( 'Andorra', 'Europe', '468', '78115', '37120000' ),
-    ( 'Angola', 'Africa', '1246700', '20609294', '1009900000' );
+    ( '1', 'A', 'm', '2500' ),
+    ( '2', 'B', 'f', '1500' ),
+    ( '3', 'C', 'm', '5500' ),
+    ( '4', 'D', 'f', '500' );
 ```
 
 ## Solution
@@ -129,7 +129,6 @@ https://leetcode.com/problems/not-boring-movies/description/
 
 ## Description
 
-邮件地址表：
 
 ```html
 +---------+-----------+--------------+-----------+
@@ -210,9 +209,9 @@ https://leetcode.com/problems/classes-more-than-5-students/description/
 
 ```html
 +---------+
-| Email   |
+| class   |
 +---------+
-| a@b.com |
+| Math    |
 +---------+
 ```
 
@@ -306,6 +305,8 @@ HAVING
 
 # 196. Delete Duplicate Emails
 
+https://leetcode.com/problems/delete-duplicate-emails/description/
+
 ## Description
 
 邮件地址表：
@@ -320,14 +321,15 @@ HAVING
 +----+---------+
 ```
 
-查找重复的邮件地址：
+删除重复的邮件地址：
 
 ```html
-+---------+
-| Email   |
-+---------+
-| a@b.com |
-+---------+
++----+------------------+
+| Id | Email            |
++----+------------------+
+| 1  | john@example.com |
+| 2  | bob@example.com  |
++----+------------------+
 ```
 
 ## SQL Schema
@@ -436,7 +438,8 @@ SELECT
     State
 FROM
     Person P
-    LEFT JOIN Address AS A ON P.PersonId = A.PersonId;
+    LEFT JOIN Address A
+    ON P.PersonId = A.PersonId;
 ```
 
 # 181. Employees Earning More Than Their Managers
@@ -482,7 +485,8 @@ SELECT
     E1.NAME AS Employee
 FROM
     Employee E1
-    INNER JOIN Employee E2 ON E1.ManagerId = E2.Id
+    INNER JOIN Employee E2
+    ON E1.ManagerId = E2.Id
     AND E1.Salary > E2.Salary;
 ```
 
@@ -556,10 +560,11 @@ VALUES
 
 ```sql
 SELECT
-    C.NAME AS Customers
+    C.Name AS Customers
 FROM
     Customers C
-    LEFT JOIN Orders O ON C.Id = O.CustomerId
+    LEFT JOIN Orders O
+    ON C.Id = O.CustomerId
 WHERE
     O.CustomerId IS NULL;
 ```
@@ -568,11 +573,11 @@ WHERE
 
 ```sql
 SELECT
-    C.NAME AS Customers
+    Name AS Customers
 FROM
-    Customers C
+    Customers
 WHERE
-    C.Id NOT IN ( SELECT CustomerId FROM Orders );
+    Id NOT IN ( SELECT CustomerId FROM Orders );
 ```
 
 # 184. Department Highest Salary
@@ -639,7 +644,7 @@ VALUES
 
 创建一个临时表，包含了部门员工的最大薪资。可以对部门进行分组，然后使用 MAX() 汇总函数取得最大薪资。
 
-之后使用连接将找到一个部门中薪资等于临时表中最大薪资的员工。
+之后使用连接找到一个部门中薪资等于临时表中最大薪资的员工。
 
 ```sql
 SELECT
@@ -682,7 +687,7 @@ https://leetcode.com/problems/second-highest-salary/description/
 +---------------------+
 ```
 
-如果没有找到，那么就返回 null 而不是不返回数据。
+没有找到返回 null 而不是不返回数据。
 
 ## SQL Schema
 
@@ -789,7 +794,8 @@ SELECT
     COUNT( DISTINCT S2.score ) Rank
 FROM
     Scores S1
-    INNER JOIN Scores S2 ON S1.score <= S2.score
+    INNER JOIN Scores S2
+    ON S1.score <= S2.score
 GROUP BY
     S1.id
 ORDER BY
@@ -858,5 +864,87 @@ FROM
 WHERE L1.id = l2.id - 1
     AND L2.id = L3.id - 1
     AND L1.num = L2.num
-    AND l2.num = l3.num; 
+    AND l2.num = l3.num;
+```
+
+# 626. Exchange Seats
+
+https://leetcode.com/problems/exchange-seats/description/
+
+## Description
+
+seat 表存储着座位对应的学生。
+
+```html
++---------+---------+
+|    id   | student |
++---------+---------+
+|    1    | Abbot   |
+|    2    | Doris   |
+|    3    | Emerson |
+|    4    | Green   |
+|    5    | Jeames  |
++---------+---------+
+```
+
+要求交换相邻座位的两个学生，如果最后一个座位是奇数，那么不交换这个座位上的学生。
+
+```html
++---------+---------+
+|    id   | student |
++---------+---------+
+|    1    | Doris   |
+|    2    | Abbot   |
+|    3    | Green   |
+|    4    | Emerson |
+|    5    | Jeames  |
++---------+---------+
+```
+
+## SQL Schema
+
+```sql
+DROP TABLE
+IF
+    EXISTS seat;
+CREATE TABLE seat ( id INT, student VARCHAR ( 255 ) );
+INSERT INTO seat ( id, student )
+VALUES
+    ( '1', 'Abbot' ),
+    ( '2', 'Doris' ),
+    ( '3', 'Emerson' ),
+    ( '4', 'Green' ),
+    ( '5', 'Jeames' );
+```
+
+## Solution
+
+使用多个 union。
+
+```sql
+SELECT
+    s1.id - 1 AS id,
+    s1.student 
+FROM
+    seat s1 
+WHERE
+    s1.id MOD 2 = 0 UNION
+SELECT
+    s2.id + 1 AS id,
+    s2.student 
+FROM
+    seat s2 
+WHERE
+    s2.id MOD 2 = 1 
+    AND s2.id != ( SELECT max( s3.id ) FROM seat s3 ) UNION
+SELECT
+    s4.id AS id,
+    s4.student 
+FROM
+    seat s4 
+WHERE
+    s4.id MOD 2 = 1 
+    AND s4.id = ( SELECT max( s5.id ) FROM seat s5 ) 
+ORDER BY
+    id;
 ```
